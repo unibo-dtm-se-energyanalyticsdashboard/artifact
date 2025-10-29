@@ -11,7 +11,7 @@ from edas.pipeline import run_pipeline
 def main():
     p = argparse.ArgumentParser(description="ENTSO-E ingestion pipeline")
     p.add_argument("--countries", nargs="+", default=["FR", "DE"], help="e.g., FR DE")
-    p.add_argument("--mode", choices=["full_2025", "last_10_days"], default="last_10_days")
+    p.add_argument("--mode", choices=["full_2025", "last_10_days"], default="full_2025")
     p.add_argument("--no-flows", action="store_true", help="skip cross-border flows")
     args = p.parse_args()
 
