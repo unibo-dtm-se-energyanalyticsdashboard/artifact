@@ -26,16 +26,22 @@ def _load_countries(engine) -> Dict[str, Dict[str, str]]:
         rows = conn.execute(text(sql)).mappings().all()
     return {r["country_code"]: {"name": r["country_name"], "zone": r["zone_key"]} for r in rows}
 
-def _compute_range(mode: str) -> tuple[pd.Timestamp, pd.Timestamp]:
-    if mode == "full_2025":
-        start = pd.Timestamp("2025-01-01 00:00:00", tz="Europe/Brussels")
-        end   = pd.Timestamp("2026-01-01 00:00:00", tz="Europe/Brussels")
-    elif mode == "last_10_days":
-        end = pd.Timestamp.utcnow().tz_localize("UTC").tz_convert("Europe/Brussels")
+
+
+def _compute_range(mode: str):
+    now_bxl = pd.Timestamp.utcnow().tz_convert("Europe/Brussels")
+    end = now_bxl.floor("H") - pd.Timedelta(hours=1)
+
+    if mode == "last_10_days":
         start = end - pd.Timedelta(days=10)
+    elif mode == "full_2025":
+        start = pd.Timestamp("2025-01-01 00:00", tz="Europe/Brussels")
+        end   = pd.Timestamp("2025-12-31 23:00", tz="Europe/Brussels")
     else:
-        raise ValueError("mode must be one of: full_2025, last_10_days")
+        raise ValueError(f"Unknown mode: {mode}")
+
     return start, end
+
 
 def run_pipeline(countries: Optional[List[str]] = None, include_flows: bool = True, mode: str = "last_10_days"):
     engine = get_engine()
