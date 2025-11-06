@@ -1,190 +1,251 @@
-#  Energy Analytics Dashboard
+```markdown
+# Energy Data Analytics System (ENTSO-E)
 
-A Python-based project for the automated ingestion, processing, and visualization of European energy data.  
-Developed as part of the **Software Engineering Project Work** at the **University of Bologna**, supervised by *Giovanni Ciatto*.
+A compact, course-compliant Python project that **ingests** electricity data from the ENTSO-E Transparency Platform, **stores** it in PostgreSQL, and **visualizes** insights with a Dash dashboard.
 
----
-
-## Relevant features
-
-- All project code contained within a single main package (`src/edas/`)
-- Modular structure separating **ingestion**, **database**, **pipeline**, and **dashboard** logic
-- Unit testing support via [`unittest`](https://docs.python.org/3/library/unittest.html)
-- Data ingestion via [ENTSO-E API](https://transparency.entsoe.eu/)
-- Data persistence using **PostgreSQL**
-- Interactive visualization using **Plotly Dash**
-- Automatic testing via **GitHub Actions**
-- Environment and dependency management with **Poetry**
-- Automatic release and semantic versioning via [`semantic-release`](https://semantic-release.gitbook.io)
-- Automatic dependencies updates via [Renovate](https://docs.renovatebot.com/)
+This repository follows your course template conventions (report/artifact separation, CI, semantic commits) and uses **Poetry** for dependency management.
 
 ---
 
-## Project structure
+## 1) Highlights
 
-```bash
-<root directory>
-├── src/
-│   └── edas/                # main package
-│       ├── ingestion/       # ingestion logic (ENTSO-E data fetching)
-│       ├── db/              # database connection and management
-│       ├── dashboard/       # Dash app with KPIs and visualizations
-│       ├── pipeline.py      # orchestration of data flow
-│       └── __init__.py
+- **Data ingestion (ETL)** via `entsoe-py` (generation mix, consumption, cross-border flows).
+- **PostgreSQL schema** with upserts and uniqueness constraints (idempotent loads).
+- **Two run modes**:
+  - `full_2025` — backfill
+  - `last_10_days` — rolling refresh (default)
+- **Dash dashboard** (KPIs fixed at top + tabbed charts/tables).
+- **Config via `.env`**, safe example provided.
+- **CI** (syntax + unit tests) with GitHub Actions (pip based; Poetry used locally).
+
+---
+
+## 2) Repository Structure (what each file/folder is)
+
+```
+
+.
+├─ .github/workflows/
+│  ├─ check.yml          # Course-like CI: pip install, syntax check, mypy (tolerant), unit tests, coverage upload
+│  ├─ ci.yml             # Minimal CI (single Python on ubuntu): syntax & tests
+│  └─ deploy.yml         # Optional release workflow (kept from template; can be wired to semantic-release later)
 │
-├── scripts/                 # command-line entry scripts
-│   └── ingest.py
+├─ artifact/
+│  ├─ scripts/
+│  │  ├─ db_init.sh      # Helper: apply SQL schema to the configured PostgreSQL database
+│  │  └─ ingest.py       # CLI entrypoint for ETL (modes: full_2025 | last_10_days; countries e.g., FR DE)
+│  └─ sql/
+│     └─ 01_schema.sql   # DDL: countries, energy_production, energy_consumption, cross_border_flow (+ constraints)
 │
-├── tests/                   # test package (unittest-based)
+├─ src/edas/
+│  ├─ **init**.py        # Package marker
+│  ├─ config.py          # Loads settings from env (.env): DB_* and ENTSOE_API_KEY
+│  ├─ pipeline.py        # Orchestrates ETL: computes time windows, calls fetchers, and upserts rows
+│  │
+│  ├─ db/
+│  │  ├─ **init**.py
+│  │  └─ connection.py   # SQLAlchemy engine builder (reads DB config from env)
+│  │
+│  ├─ ingestion/
+│  │  ├─ **init**.py
+│  │  ├─ entsoe_client.py# ENTSO-E queries (consumption, generation mix, cross-border flows) + timezone handling
+│  │  └─ upsert.py       # Bulk upsert functions for the three fact tables
+│  │
+│  └─ dashboard/
+│     ├─ **init**.py
+│     ├─ queries.py      # SQL/aggregation helpers used by the dashboard
+│     └─ app.py          # Dash UI: fixed KPIs header + tabs (Time Series, Production Mix, Flows, Heatmap, Tables)
 │
-├── .github/
-│   └── workflows/           # CI/CD automation
-│       ├── check.yml        # multi-OS and multi-version tests
-│       ├── ci.yml           # CI workflow
-│       └── deploy.yml       # automatic PyPI & GitHub release
+├─ tests/
+│  └─ test_smoke.py      # Minimal smoke test (kept to satisfy CI)
 │
-├── pyproject.toml           # project configuration (Poetry)
-├── requirements.txt         # bootstrap Poetry dependency
-├── LICENSE                  # license file (MIT)
-├── README.md                # project documentation
-└── .env.example             # sample environment configuration
+├─ .env                  # Local secrets/config (NOT committed) – you create this from the example
+├─ .env.example          # Safe example of required variables
+├─ .gitignore
+├─ CHANGELOG.md          # Generated/updated during releases (if you enable semantic-release)
+├─ LICENSE               # Apache-2.0 (as in template)
+├─ poetry.toml           # Poetry configuration (virtualenvs.in-project = true recommended)
+├─ pyproject.toml        # Project metadata + Poetry dependencies & scripts
+├─ poetry.lock           # Locked dependency graph (generated by `poetry install`)
+├─ renovate.json         # Renovate configuration (dependency updates)
+├─ requirements.txt      # Used by CI to bootstrap Poetry (or basic pip installs, depending on workflow)
+└─ release.config.mjs    # Semantic-release config (kept from template; optional in this project)
+
 ````
 
+> **Why two CI files?**  
+> - `check.yml` mirrors the course template (multi-step checks; tolerant mypy).  
+> - `ci.yml` is a **lean** single-matrix check. You can keep both (only one is strictly necessary).
+
 ---
 
-## Setup and usage
+## 3) Prerequisites
 
-### 1️ Clone the repository
+- **Python** 3.10 (recommended for lib compatibility)  
+- **Poetry** 2.x:
+  ```bash
+  pip install poetry
+````
 
-```bash
-git clone https://github.com/unibo-dtm-se-energyanalyticsdashboard/artifact.git
-cd artifact
-```
+* **PostgreSQL** 14+ (running locally)
+* **ENTSO-E API key** (Transparency Platform)
 
-### 2️ Install dependencies
+---
 
-```bash
-pip install poetry
-poetry install
-```
+## 4) Configuration
 
-### 3️ Configure environment variables
+Create `.env` in the repo root (next to `pyproject.toml`) from `.env.example`:
 
-Create a `.env` file based on `.env.example`:
-
-```bash
-DB_USER=postgres
-DB_PASSWORD=your_password
+```dotenv
+# Database
 DB_HOST=localhost
 DB_PORT=5432
 DB_NAME=energy_analytics
-ENTSOE_API_KEY=your_entsoe_api_token
+DB_USER=postgres
+DB_PASSWORD=your_password
+
+# ENTSO-E
+ENTSOE_API_KEY=your_entsoe_api_key
 ```
 
-### 4️ Run data ingestion
+> On Windows PowerShell, if script execution is blocked:
+>
+> ```powershell
+> Set-ExecutionPolicy -Scope CurrentUser RemoteSigned
+> ```
+
+---
+
+## 5) Install & Dev Environment
 
 ```bash
-poetry run python scripts/ingest.py --mode full_2025 --countries FR DE
+# Use Python 3.10 for Poetry environment
+poetry env use 3.10
+
+# Install deps
+poetry install
 ```
 
-### 5️ Launch the dashboard
+> Poetry is configured (via `poetry.toml`) to create `.venv/` inside the project (easy to activate/clean).
+
+---
+
+## 6) Database Setup
+
+Create DB (if needed):
+
+```bash
+psql -U postgres -h localhost -c "CREATE DATABASE energy_analytics;"
+```
+
+Apply schema:
+
+```bash
+psql -U postgres -h localhost -d energy_analytics -f artifact/sql/01_schema.sql
+```
+
+Or use the helper:
+
+```bash
+bash artifact/scripts/db_init.sh
+```
+
+---
+
+## 7) Ingestion (ETL)
+
+Run from project root:
+
+```bash
+# Rolling last 10 days (default)
+poetry run python artifact/scripts/ingest.py --mode last_10_days --countries FR DE
+
+# Full backfill for 2025
+poetry run python artifact/scripts/ingest.py --mode full_2025 --countries FR DE
+```
+
+**What it does**
+
+* Loads **consumption** and **generation mix** for FR/DE.
+* Loads **cross-border flows** for FR/DE with declared neighbors (only if neighbor zones exist in `countries` table).
+* All timestamps normalized to **UTC**, idempotent upserts (unique constraints prevent duplicates).
+
+---
+
+## 8) Dashboard
+
+Start the app:
 
 ```bash
 poetry run python -m edas.dashboard.app
 ```
 
-Then open the dashboard at:
- **[http://127.0.0.1:8050](http://127.0.0.1:8050)**
+Open: [http://127.0.0.1:8050](http://127.0.0.1:8050)
+
+**Sections**
+
+* **KPIs** (fixed header): totals, daily/weekly/monthly averages, net balance, energy mix.
+* **Tabs**:
+
+  1. *KPIs & Time Series* — consumption vs production lines
+  2. *Production Mix* — stacked area by source
+  3. *Cross-Border Flows* — net bars by corridor
+  4. *Hourly Heatmap* — weekday × hour consumption matrix
+  5. *Tables* — daily aggregates & flows table
 
 ---
 
-## Testing
+## 9) Testing
 
-Run tests locally:
+Minimal smoke test exists. Run:
 
 ```bash
 poetry run python -m unittest discover -v -s tests
 ```
 
-> Tests are automatically executed in CI (GitHub Actions)
-> across multiple OS (Ubuntu, macOS, Windows) and Python versions (3.9 → 3.13).
+> CI workflows (`check.yml`, `ci.yml`) also run syntax/tests on push/PR.
 
 ---
 
-## Versioning & release
+## 10) Branching & Commit Convention
 
-This project follows **Semantic Versioning (SemVer)**:
+* Branching:
 
-```
-MAJOR.MINOR.PATCH
-```
+  * `dev` → integration branch
+  * `feat/...` → feature branches (e.g., `feat/dashboard-base`)
+* Commits: **Conventional Commits**, e.g.
+  `feat(ingestion): add last_10_days mode`
+  `fix(dashboard): correct tz conversion`
 
-| Type      | Description                              | Example |
-| --------- | ---------------------------------------- | ------- |
-| **MAJOR** | incompatible API or architecture changes | `1.0.0` |
-| **MINOR** | new backward-compatible features         | `0.2.0` |
-| **PATCH** | bug fixes or small improvements          | `0.1.1` |
-
-Releases are managed automatically via **semantic-release** when commits reach the `main` branch.
-
-Manual example:
-
-```bash
-poetry version patch     # or minor / major
-git add pyproject.toml
-git commit -m "chore(release): bump version to 0.1.0"
-git tag -a v0.1.0 -m "release: v0.1.0"
-git push origin main --tags
-```
+> This pairs well with semantic-release if/when you enable automated versioning.
 
 ---
 
-## CI/CD Pipelines
+## 11) Releases (optional)
 
-| Workflow       | Description                                                  |
-| -------------- | ------------------------------------------------------------ |
-| **check.yml**  | Syntax validation, type checking, and unit tests             |
-| **ci.yml**     | Multi-platform testing (Ubuntu, macOS, Windows)              |
-| **deploy.yml** | Automated packaging & release to PyPI (via semantic-release) |
+`deploy.yml` + `release.config.mjs` are preserved from the course template.
+If you want automated releases:
 
----
-
-## Automatic dependency updates
-
-This project uses [Renovate](https://docs.renovatebot.com/) to keep dependencies in `pyproject.toml` up to date.
-Renovate automatically opens pull requests for updates and merges them if all tests pass.
-
-Steps to enable Renovate:
-
-1. Enable the Renovate GitHub App for this repository.
-2. Allow PR auto-merging in your repo settings.
-3. Verify CI pipelines (`check.yml`, `ci.yml`) pass before merge.
-
-> Note: Renovate + Semantic Release may produce multiple automatic patch releases — this is expected.
+1. Add `RELEASE_TOKEN`, `PYPI_USERNAME`, `PYPI_PASSWORD` (API token) as repo secrets.
+2. Ensure commit messages follow Conventional Commits.
+3. Push to `main`/`master` per your release policy.
 
 ---
 
-## License
+## 12) License
 
-This project is distributed under the **MIT License**.
-See the [LICENSE](./LICENSE) file for full details.
-
----
-
-## Authors
-
-* **Romin [Your Last Name]** — Developer
-* **Supervisor:** [Giovanni Ciatto](https://ciatto.unibo.it), University of Bologna
+[Apache-2.0](./LICENSE)
 
 ---
 
-## Acknowledgements
+## 13) Troubleshooting
 
-Developed as part of the
-**Distributed and Pervasive Systems – Software Engineering Project Work (A.Y. 2024/2025)**,
-following the official [Python Project Template](https://github.com/unibo-dtm-se) by *Giovanni Ciatto*.
+* **DB auth failed** → verify `.env` (`DB_*`) and local PostgreSQL role/password.
+* **ENTSO-E 400/429** → reduce time windows, check API key, respect rate limits.
+* **PowerShell cannot activate venv** → `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned`
+* **Empty charts** → first run ETL to populate the DB, then refresh the dashboard.
 
 ```
 
----
-
+::contentReference[oaicite:0]{index=0}
+```
