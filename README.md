@@ -22,7 +22,6 @@ This repository follows your course template conventions (report/artifact separa
 
 ## 2) Repository Structure (what each file/folder is)
 
-```
 .
 ├── .github/workflows/
 │   ├── check.yml           # Course-like CI: pip install, syntax check, mypy (tolerant), unit tests, coverage upload
@@ -71,7 +70,6 @@ This repository follows your course template conventions (report/artifact separa
 └── release.config.mjs      # Semantic-release config (kept from template; optional in this project)
 
 
-````
 
 > **Why two CI files?**  
 > - `check.yml` mirrors the course template (multi-step checks; tolerant mypy).  
