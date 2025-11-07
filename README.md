@@ -1,19 +1,17 @@
----
-
-#  Energy Analytics Dashboard
+# 🧠 Energy Analytics Dashboard
 
 A modular Python project for data ingestion, transformation, and visualization of European energy data using **Poetry**, **Dash**, and **GitHub Actions**.
 
 ---
 
-##  Overview
+## 🚀 Overview
 
 This project follows a clean and extensible architecture designed for automation, reproducibility, and deployment.
 It integrates with **ENTSO-E APIs**, ingests energy data into a **PostgreSQL database**, and provides an interactive **Dash dashboard** for analytics and visualization.
 
 ---
 
-##  Main Features
+## ⚙️ Main Features
 
 * Modular ETL (Extract–Transform–Load) pipeline
 * Database connection and schema initialization (PostgreSQL)
@@ -25,7 +23,7 @@ It integrates with **ENTSO-E APIs**, ingests energy data into a **PostgreSQL dat
 
 ---
 
-##  Project Structure
+## 🧩 Project Structure
 
 ```text
 .
@@ -78,28 +76,28 @@ It integrates with **ENTSO-E APIs**, ingests energy data into a **PostgreSQL dat
 
 ---
 
-##  Setup Instructions
+## 🧰 Setup Instructions
 
-### 1 Install dependencies
+### 1️⃣ Install dependencies
 
 ```bash
 pip install -r requirements.txt
 poetry install
 ```
 
-### 2 Initialize the database
+### 2️⃣ Initialize the database
 
 ```bash
 bash artifact/scripts/db_init.sh
 ```
 
-### 3 Run ingestion (fetch & store data)
+### 3️⃣ Run ingestion (fetch & store data)
 
 ```bash
 python artifact/scripts/ingest.py
 ```
 
-### 4 Launch the dashboard
+### 4️⃣ Launch the dashboard
 
 ```bash
 poetry run python -m src.edas.dashboard.app
@@ -109,7 +107,7 @@ Then open [http://127.0.0.1:8050](http://127.0.0.1:8050) in your browser.
 
 ---
 
-##  Testing
+## 🧪 Testing
 
 Unit and smoke tests are automatically run by **GitHub Actions** for each commit and pull request.
 You can run them locally via:
@@ -120,7 +118,7 @@ poetry run python -m unittest discover -v
 
 ---
 
-##  CI/CD Integration
+## 🔁 CI/CD Integration
 
 * **`check.yml`** → Runs syntax, linting, and unit tests
 * **`ci.yml`** → Minimal CI workflow on Ubuntu
@@ -128,16 +126,14 @@ poetry run python -m unittest discover -v
 
 ---
 
-##  Versioning & Releases
+## 📦 Versioning & Releases
 
 Semantic versioning is handled automatically through commit messages following [Conventional Commits](https://www.conventionalcommits.org/).
 New releases are published to **PyPI** whenever changes are merged into the `main` branch.
 
 ---
 
-##  License
+## 📜 License
 
 Distributed under the **Apache License 2.0**.
 See [`LICENSE`](LICENSE) for more details.
-
----
