@@ -1,139 +1,180 @@
-# 🧠 Energy Analytics Dashboard
+# Energy Analytics Dashboard
 
-A modular Python project for data ingestion, transformation, and visualization of European energy data using **Poetry**, **Dash**, and **GitHub Actions**.
-
----
-
-## 🚀 Overview
-
-This project follows a clean and extensible architecture designed for automation, reproducibility, and deployment.
-It integrates with **ENTSO-E APIs**, ingests energy data into a **PostgreSQL database**, and provides an interactive **Dash dashboard** for analytics and visualization.
+A modular Python project for data ingestion, processing, and visualization of European electricity data using ENTSO-E API, PostgreSQL, Pandas, Dash, and Poetry — all integrated under CI/CD automation via GitHub Actions.
 
 ---
 
-## ⚙️ Main Features
+## Overview
+
+The Energy Analytics Dashboard automates the full data pipeline — from fetching raw data from the European electricity market (ENTSO-E) to storing and visualizing it through an interactive web dashboard.
+
+It supports:
+
+* Fetching real-time and historical data from the ENTSO-E Transparency Platform.
+* Two operating modes for ingestion:
+
+  * `--mode full_2025` → Full dataset for 2025.
+  * Default mode (no flag) → Last 10 days of data.
+* Data persistence in a structured PostgreSQL database.
+* Interactive analytics dashboard built with Plotly Dash.
+
+---
+
+## Main Features
 
 * Modular ETL (Extract–Transform–Load) pipeline
-* Database connection and schema initialization (PostgreSQL)
-* Automatic orchestration of ingestion tasks
-* Interactive Dash-based dashboard for analytics
-* Continuous Integration and Deployment via GitHub Actions
+* PostgreSQL integration via SQLAlchemy
+* ENTSO-E API client for energy data (consumption, generation, cross-border flows)
+* Automated orchestration of ingestion modes (full-year or 10-day rolling window)
+* Interactive Dash-based dashboard with KPIs, time series, production mix, and flow analytics
+* Automated testing & CI with GitHub Actions
 * Dependency management with Poetry
-* Automated versioning and dependency updates
+* Versioning & release automation via semantic-release
 
 ---
 
-## 🧩 Project Structure
+## Project Structure
 
 ```text
 .
 ├── .github/workflows/
-│   ├── check.yml           # Course-like CI: pip install, syntax check, mypy (tolerant), unit tests, coverage upload
-│   ├── ci.yml              # Minimal CI (single Python on ubuntu): syntax & tests
-│   └── deploy.yml          # Optional release workflow (kept from template; can be wired to semantic-release later)
+│   ├── check.yml           # Full CI: syntax, linting (mypy), unit tests, coverage
+│   ├── ci.yml              # Simplified CI: syntax + unit tests
+│   └── deploy.yml          # Automated release pipeline (optional; semantic-release)
 │
 ├── artifact/
 │   ├── scripts/
-│   │   ├── db_init.sh      # Helper: apply SQL schema to the configured PostgreSQL database
-│   │   └── ingest.py       # CLI entrypoint for ETL (modes: full_2025 | last_10_days; countries e.g., FR DE)
+│   │   ├── db_init.sh      # Initialize PostgreSQL schema
+│   │   └── ingest.py       # CLI entrypoint for ETL (modes: full_2025 | last_10_days)
 │   └── sql/
-│       └── 01_schema.sql   # DDL: countries, energy_production, energy_consumption, cross_border_flow (+ constraints)
+│       └── 01_schema.sql   # DDL: tables for consumption, production, flows, countries
 │
 ├── src/edas/
-│   ├── __init__.py         # Package marker
-│   ├── config.py           # Loads settings from env (.env): DB_* and ENTSOE_API_KEY
-│   ├── pipeline.py         # Orchestrates ETL: computes time windows, calls fetchers, and upserts rows
+│   ├── __init__.py
+│   ├── config.py           # Reads DB config & ENTSOE token from environment (.env)
+│   ├── pipeline.py         # Main orchestration of ETL workflow
 │   │
 │   ├── db/
 │   │   ├── __init__.py
-│   │   └── connection.py   # SQLAlchemy engine builder (reads DB config from env)
+│   │   └── connection.py   # SQLAlchemy engine connection using environment variables
 │   │
 │   ├── ingestion/
 │   │   ├── __init__.py
-│   │   ├── entsoe_client.py # ENTSO-E queries (consumption, generation mix, cross-border flows) + timezone handling
-│   │   └── upsert.py        # Bulk upsert functions for the three fact tables
+│   │   ├── entsoe_client.py # Data fetching from ENTSO-E API via entsoe-py
+│   │   └── upsert.py        # Data upsert logic for PostgreSQL tables
 │   │
 │   └── dashboard/
 │       ├── __init__.py
-│       ├── queries.py      # SQL/aggregation helpers used by the dashboard
-│       └── app.py          # Dash UI: KPIs header + tabs (Time Series, Production Mix, Flows, Heatmap, Tables)
+│       ├── queries.py      # SQL and aggregation logic for dashboard components
+│       └── app.py          # Dash UI with KPI cards + tabs (time series, mix, flows, tables)
 │
 ├── tests/
-│   └── test_smoke.py       # Minimal smoke test (kept to satisfy CI)
+│   └── test_smoke.py       # Basic smoke test for CI validation
 │
-├── .env                    # Local secrets/config (NOT committed) – you create this from the example
-├── .env.example            # Safe example of required variables
+├── .env                    # Environment variables (not tracked in Git)
+├── .env.example            # Example configuration file
 ├── .gitignore
-├── CHANGELOG.md            # Generated/updated during releases (if you enable semantic-release)
-├── LICENSE                 # Apache-2.0 (as in template)
-├── poetry.toml             # Poetry configuration (virtualenvs.in-project = true recommended)
-├── pyproject.toml          # Project metadata + Poetry dependencies & scripts
-├── poetry.lock             # Locked dependency graph (generated by poetry install)
-├── renovate.json           # Renovate configuration (dependency updates)
-├── requirements.txt        # Used by CI to bootstrap Poetry (or basic pip installs, depending on workflow)
-└── release.config.mjs      # Semantic-release config (kept from template; optional in this project)
+├── LICENSE                 # Apache 2.0 license
+├── poetry.toml             # Poetry configuration
+├── pyproject.toml          # Dependencies, metadata, and build configuration
+├── poetry.lock             # Dependency lock file
+├── requirements.txt        # Used for CI setup before Poetry
+├── renovate.json           # Automated dependency updates
+└── release.config.mjs      # Semantic-release configuration
 ```
 
 ---
 
-## 🧰 Setup Instructions
+## Setup Instructions
 
-### 1️⃣ Install dependencies
+### 1. Install dependencies
 
 ```bash
 pip install -r requirements.txt
 poetry install
 ```
 
-### 2️⃣ Initialize the database
+### 2. Set up the database
+
+Make sure PostgreSQL is running, and the `.env` file contains your credentials:
+
+```env
+DB_USER=postgres
+DB_PASSWORD=your_password
+DB_HOST=localhost
+DB_PORT=5432
+DB_NAME=energy_analytics
+ENTSOE_API_KEY=your_entsoe_token
+```
+
+Initialize schema:
 
 ```bash
 bash artifact/scripts/db_init.sh
 ```
 
-### 3️⃣ Run ingestion (fetch & store data)
+---
+
+## Data Ingestion
+
+Run data ingestion via the CLI tool:
+
+**Last 10 days (default):**
 
 ```bash
-python artifact/scripts/ingest.py
+poetry run python artifact/scripts/ingest.py --countries FR DE
 ```
 
-### 4️⃣ Launch the dashboard
+**Full year 2025:**
+
+```bash
+poetry run python artifact/scripts/ingest.py --mode full_2025 --countries FR DE
+```
+
+---
+
+## Run the Dashboard
 
 ```bash
 poetry run python -m src.edas.dashboard.app
 ```
 
-Then open [http://127.0.0.1:8050](http://127.0.0.1:8050) in your browser.
+Open [http://127.0.0.1:8050](http://127.0.0.1:8050) in your browser.
+You’ll see:
+
+* Top section with KPIs (load, generation, net flow)
+* Interactive tabs for Time Series, Mix, and Country Comparisons.
 
 ---
 
-## 🧪 Testing
+## Testing
 
-Unit and smoke tests are automatically run by **GitHub Actions** for each commit and pull request.
-You can run them locally via:
+Run unit tests locally:
 
 ```bash
 poetry run python -m unittest discover -v
 ```
 
----
-
-## 🔁 CI/CD Integration
-
-* **`check.yml`** → Runs syntax, linting, and unit tests
-* **`ci.yml`** → Minimal CI workflow on Ubuntu
-* **`deploy.yml`** → Optional automated release on PyPI (using semantic-release)
+Tests are automatically executed in GitHub Actions on every push or pull request.
 
 ---
 
-## 📦 Versioning & Releases
+## CI/CD Integration
 
-Semantic versioning is handled automatically through commit messages following [Conventional Commits](https://www.conventionalcommits.org/).
-New releases are published to **PyPI** whenever changes are merged into the `main` branch.
+* **check.yml** → Comprehensive CI (syntax, linting, unit tests, coverage)
+* **ci.yml** → Lightweight CI for quick checks
+* **deploy.yml** → Optional release automation
 
 ---
 
-## 📜 License
+## Versioning & Releases
 
-Distributed under the **Apache License 2.0**.
-See [`LICENSE`](LICENSE) for more details.
+Uses Semantic Versioning (SemVer) via commit messages following the [Conventional Commits](https://www.conventionalcommits.org/) standard.
+Automatic release to PyPI is triggered upon merging into `main`.
+
+---
+
+## License
+
+Distributed under the Apache License 2.0.
+See the [LICENSE](LICENSE) file for details.
