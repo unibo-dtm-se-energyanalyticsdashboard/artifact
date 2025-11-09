@@ -1,8 +1,10 @@
+import sys, os
+sys.path.append(os.path.join(os.path.dirname(__file__), "..", "src"))
+
 import unittest
 import pandas as pd
 
-from edas.pipeline import _compute_range  # تابع را تست می‌کنیم
-
+from edas.pipeline import _compute_range  
 class TestComputeRange(unittest.TestCase):
 
     def test_last_10_days_dynamic_now(self):
