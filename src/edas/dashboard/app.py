@@ -6,6 +6,9 @@ from dash import Dash, dcc, html, dash_table, Input, Output
 
 from edas.db.connection import get_engine
 from edas.dashboard import queries as Q
+from edas.logging_config import setup_logging
+
+setup_logging("INFO")
 
 
 def _now_brussels_range():

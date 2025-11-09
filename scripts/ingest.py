@@ -7,6 +7,11 @@ if SRC not in sys.path:
     sys.path.insert(0, SRC)
 
 from edas.pipeline import run_pipeline
+from edas.logging_config import setup_logging
+
+
+setup_logging("INFO")
+
 
 def main():
     p = argparse.ArgumentParser(description="ENTSO-E ingestion pipeline")
