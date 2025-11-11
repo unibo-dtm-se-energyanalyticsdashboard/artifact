@@ -2,7 +2,7 @@
 name = "unibo-dtm-se-energyanalyticsdashboard"
 version = "0.2.0"
 description = "Energy Analytics Dashboard: ENTSO-E ingestion to PostgreSQL + Dash UI"
-authors = ["Romina Gharehmohammadi<romi.gharehmohammadi@studio.unibo.it>"]
+authors = ["Romina Gharehmohammadi <romi.gharehmohammadi@studio.unibo.it>"]
 license = "Apache-2.0"
 readme = "README.md"
 packages = [{ include = "edas", from = "src" }]
