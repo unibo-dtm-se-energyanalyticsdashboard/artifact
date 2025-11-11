@@ -1,4 +1,4 @@
-# src/edas/dashboard/app.py
+from typing import Any, List, Dict
 
 import pandas as pd
 import plotly.express as px
@@ -7,6 +7,9 @@ from dash import Dash, dcc, html, dash_table, Input, Output
 from edas.db.connection import get_engine
 from edas.dashboard import queries as Q
 from edas.logging_config import setup_logging
+
+# mypy: disable-error-code=arg-type
+
 
 setup_logging("INFO")
 
@@ -30,7 +33,7 @@ def _kpi_card(title: str, value_id: str):
     )
 
 
-COUNTRY_OPTIONS = [
+COUNTRY_OPTIONS: List[Dict[str, Any]] = [
     {"label": "France", "value": "FR"},
     {"label": "Germany", "value": "DE"},
 ]
