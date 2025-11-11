@@ -17,6 +17,8 @@ It supports:
   * Default mode (no flag) → Last 10 days of data.
 * Data persistence in a structured PostgreSQL database.
 * Interactive analytics dashboard built with Plotly Dash.
+* Integrated logging for monitoring pipeline execution and debugging.
+* Automated testing for ingestion, pipeline, and dashboard components.
 
 ---
 
@@ -26,6 +28,8 @@ It supports:
 * PostgreSQL integration via SQLAlchemy
 * ENTSO-E API client for energy data (consumption, generation, cross-border flows)
 * Automated orchestration of ingestion modes (full-year or 10-day rolling window)
+* Comprehensive logging system for tracing and debugging
+* Unit and smoke tests for key pipeline functions
 * Interactive Dash-based dashboard with KPIs, time series, production mix, and flow analytics
 * Automated testing & CI with GitHub Actions
 * Dependency management with Poetry
@@ -39,8 +43,7 @@ It supports:
 .
 ├── .github/workflows/
 │   ├── check.yml           # Full CI: syntax, linting (mypy), unit tests, coverage
-│   ├── ci.yml              # Simplified CI: syntax + unit tests
-│   └── deploy.yml          # Automated release pipeline (optional; semantic-release)
+│   └── deploy.yml          # Automated release pipeline (semantic-release)
 │
 ├── artifact/
 │   ├── scripts/
@@ -49,10 +52,13 @@ It supports:
 │   └── sql/
 │       └── 01_schema.sql   # DDL: tables for consumption, production, flows, countries
 │
+├── logs/                   # Centralized directory for log output from pipeline and ingestion
+│   └── pipeline.log        # Example log file generated during ETL runs
+│
 ├── src/edas/
 │   ├── __init__.py
 │   ├── config.py           # Reads DB config & ENTSOE token from environment (.env)
-│   ├── pipeline.py         # Main orchestration of ETL workflow
+│   ├── pipeline.py         # Main orchestration of ETL workflow + logging setup
 │   │
 │   ├── db/
 │   │   ├── __init__.py
@@ -69,7 +75,9 @@ It supports:
 │       └── app.py          # Dash UI with KPI cards + tabs (time series, mix, flows, tables)
 │
 ├── tests/
-│   └── test_smoke.py       # Basic smoke test for CI validation
+│   ├── test_pipeline_unit.py   # Unit tests for _compute_range() and validation logic
+│   ├── test_pipeline_smoke.py  # Smoke test for minimal pipeline execution
+│   └── test_dashboard_smoke.py # Dashboard smoke test for layout validation
 │
 ├── .env                    # Environment variables (not tracked in Git)
 ├── .env.example            # Example configuration file
@@ -131,6 +139,8 @@ poetry run python artifact/scripts/ingest.py --countries FR DE
 poetry run python artifact/scripts/ingest.py --mode full_2025 --countries FR DE
 ```
 
+Logs for ingestion and pipeline runs are saved automatically in the `/logs` directory.
+
 ---
 
 ## Run the Dashboard
@@ -149,11 +159,16 @@ You’ll see:
 
 ## Testing
 
-Run unit tests locally:
+Run all tests locally:
 
 ```bash
 poetry run python -m unittest discover -v
 ```
+
+Tests include:
+
+* **Unit tests** — for pipeline components (range logic, data checks)
+* **Smoke tests** — verifying pipeline and dashboard initialization
 
 Tests are automatically executed in GitHub Actions on every push or pull request.
 
@@ -162,8 +177,8 @@ Tests are automatically executed in GitHub Actions on every push or pull request
 ## CI/CD Integration
 
 * **check.yml** → Comprehensive CI (syntax, linting, unit tests, coverage)
-* **ci.yml** → Lightweight CI for quick checks
-* **deploy.yml** → Optional release automation
+* **deploy.yml** → Automated semantic-release deployment to PyPI or GitHub
+* **Logging output** and **test coverage** are uploaded as artifacts for inspection.
 
 ---
 
