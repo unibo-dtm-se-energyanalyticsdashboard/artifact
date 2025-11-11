@@ -63,11 +63,10 @@ jobs:
           - windows-latest
           - macos-latest
         python-version:
-          - '3.9'
           - '3.10'
           - '3.11'
           - '3.12'
-          - '3.13'
+
     runs-on: ${{ matrix.os }}
     name: Test on Python ${{ matrix.python-version }}, on ${{ matrix.os }}
     timeout-minutes: 45
