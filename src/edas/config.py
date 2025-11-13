@@ -3,7 +3,7 @@
 # =======================================
 
 # API key for ENTSO-E Transparency Platform
-ENTSOE_API_KEY = "df175bd8-e901-42d1-b3f1-7bb638056c94"
+ENTSOE_API_KEY = "ad80a684-56b8-4229-9138-4099fbef344d"
 
 # Default timezone for ENTSO-E data
 TZ_EUROPE = "Europe/Brussels"
