@@ -4,6 +4,7 @@ import pandas as pd
 from entsoe import EntsoePandasClient
 
 from edas.config import ENTSOE_API_KEY, TZ_EUROPE
+from entsoe import EntsoePandasClient
 
 log = logging.getLogger(__name__)
 client = EntsoePandasClient(api_key=ENTSOE_API_KEY)
