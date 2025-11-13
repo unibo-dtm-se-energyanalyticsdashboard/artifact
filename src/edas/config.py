@@ -12,12 +12,9 @@ load_dotenv()
 # ENTSO-E API configuration
 # -----------------------------
 
-ENTSOE_API_KEY: Final[str] = os.getenv("ENTSOE_API_KEY", "")
+_raw_key = os.getenv("ENTSOE_API_KEY")
 
-if not ENTSOE_API_KEY:
-    raise RuntimeError(
-        "ENTSOE_API_KEY is not set. Please define it in your .env file or environment."
-    )
+ENTSOE_API_KEY: Final[str] = _raw_key or ""
 
 # Default timezone for ENTSO-E data
 TZ_EUROPE: Final[str] = "Europe/Brussels"
