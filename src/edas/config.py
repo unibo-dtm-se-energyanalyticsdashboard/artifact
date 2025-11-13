@@ -1,18 +1,14 @@
-# =======================================
-# Global Configuration for EDAS Project
-# =======================================
+# src/edas/config.py
+import os
+from dotenv import load_dotenv
 
-# API key for ENTSO-E Transparency Platform
-ENTSOE_API_KEY = "ad80a684-56b8-4229-9138-4099fbef344d"
+# Load variables from .env (if present)
+load_dotenv()
+
+# ENTSO-E API key (mandatory)
+ENTSOE_API_KEY = os.getenv("ENTSOE_API_KEY")
+if not ENTSOE_API_KEY:
+    raise RuntimeError("Missing ENTSOE_API_KEY in environment/.env")
 
 # Default timezone for ENTSO-E data
-TZ_EUROPE = "Europe/Brussels"
-
-# Database connection info
-DB = {
-    "user": "postgres",
-    "password": "Password123",   # تغییر بده اگر در سیستم تو فرق داره
-    "host": "localhost",
-    "port": "5432",
-    "database": "energy_analytics",
-}
+TZ_EUROPE = os.getenv("TZ_EUROPE", "Europe/Brussels")
