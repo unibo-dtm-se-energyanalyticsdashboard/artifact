@@ -1,18 +1,29 @@
-# =======================================
-# Global Configuration for EDAS Project
-# =======================================
+"""
+Configuration module for the EDAS application.
 
-# API key for ENTSO-E Transparency Platform
-ENTSOE_API_KEY = "ad80a684-56b8-4229-9138-4099fbef344d"
+Loads sensitive keys (like ENTSOE_API_KEY) and static settings 
+(like timezones) from environment variables (.env file).
+"""
 
-# Default timezone for ENTSO-E data
-TZ_EUROPE = "Europe/Brussels"
+import os
+from typing import Final
 
-# Database connection info
-DB = {
-    "user": "postgres",
-    "password": "Password123",   # تغییر بده اگر در سیستم تو فرق داره
-    "host": "localhost",
-    "port": "5432",
-    "database": "energy_analytics",
-}
+from dotenv import load_dotenv
+
+# Load environment variables from a .env file (if present)
+# This allows for easy configuration in development without setting system variables.
+load_dotenv()
+
+# -----------------------------
+# ENTSO-E API configuration
+# -----------------------------
+
+# Fetch the raw API key string from the environment variables
+_raw_key = os.getenv("ENTSOE_API_KEY")
+
+# Define the API key as a typed Constant (Final) for use in other modules.
+# Fallback to an empty string if the environment variable is not set.
+ENTSOE_API_KEY: Final[str] = _raw_key or ""
+
+# Define the default timezone for ENTSO-E data (which uses CET/Brussels time)
+TZ_EUROPE: Final[str] = "Europe/Brussels"

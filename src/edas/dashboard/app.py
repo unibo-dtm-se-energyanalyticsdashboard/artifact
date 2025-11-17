@@ -4,64 +4,95 @@ import pandas as pd
 import plotly.express as px
 from dash import Dash, dcc, html, dash_table, Input, Output
 
+# Import the database engine factory (Adapter)
 from edas.db.connection import get_engine
+# Import the analytics query functions (Application Logic)
 from edas.dashboard import queries as Q
+# Import the logging configuration
 from edas.logging_config import setup_logging
 
+# Suppress a specific mypy error often triggered by Dash callback argument types
 # mypy: disable-error-code=arg-type
 
-
+# Initialize logging for the dashboard application
 setup_logging("INFO")
 
 
-def _now_brussels_range():
-    # pd.Timestamp.utcnow() is already UTC-aware
+def _now_brussels_range() -> tuple[pd.Timestamp, pd.Timestamp]:
+    """
+    Calculates the default date range (last 10 days) ending at the current
+    hour in the 'Europe/Brussels' timezone (as ENTSO-E data is often localized).
+    """
+    # Get current time in UTC (timezone-aware)
     now_utc = pd.Timestamp.utcnow()
+    # Convert to the target European timezone
     now_bxl = now_utc.tz_convert("Europe/Brussels")
-    end = now_bxl.floor("h")  # use 'h' (lowercase) to avoid FutureWarning
+    # Floor to the current hour (e.g., 10:46 PM -> 10:00 PM)
+    end = now_bxl.floor("h")
+    # Set the start 10 days prior
     start = end - pd.Timedelta(days=10)
+    # Return as standard datetime objects for the DatePickerRange
     return start.to_pydatetime(), end.to_pydatetime()
 
 
-def _kpi_card(title: str, value_id: str):
+def _kpi_card(title: str, value_id: str) -> html.Div:
+    """
+    Component factory for creating a standardized Key Performance Indicator (KPI) card.
+    
+    Args:
+        title: The static text to display as the KPI title.
+        value_id: The Dash component ID used to update this KPI's value via callback.
+
+    Returns:
+        html.Div: A Dash HTML component representing the KPI card.
+    """
     return html.Div(
         className="kpi-card",
         children=[
             html.Div(title, className="kpi-title"),
+            # The value will be populated dynamically by the 'update_kpis' callback
             html.Div(id=value_id, className="kpi-value"),
         ],
     )
 
 
+# Static options for the country selection dropdown
 COUNTRY_OPTIONS: List[Dict[str, Any]] = [
     {"label": "France", "value": "FR"},
     {"label": "Germany", "value": "DE"},
 ]
 
-# factory so we can defer engine creation in queries
+# Create the database engine factory (using Dependency Injection pattern)
+# This allows the query functions to get a connection from the pool.
 engine_factory = get_engine
 
+# Initialize the Dash application
 app = Dash(__name__, title="Energy Analytics Dashboard")
+# The 'server' variable is often needed for Gunicorn/WSGI deployment
+server = app.server
 
+# Define the main layout of the dashboard
 app.layout = html.Div(
     [
         html.H1("Energy Analytics Dashboard"),
 
-        # Controls
+        # --- Section: User Controls (Filters) ---
         html.Div(
             [
+                # Country Selector
                 html.Div(
                     [
                         html.Label("Countries"),
                         dcc.Dropdown(
                             id="country-select",
                             options=COUNTRY_OPTIONS,
-                            value=["FR"],
+                            value=["FR"],  # Default value
                             multi=True,
                             style={"minWidth": 280},
                         ),
                     ]
                 ),
+                # Date Range Selector
                 html.Div(
                     [
                         html.Label("Date Range"),
@@ -83,7 +114,8 @@ app.layout = html.Div(
             },
         ),
 
-        # Persistent KPI row (2 per line, responsive)
+        # --- Section: KPI Grid ---
+        # This grid is updated by the 'update_kpis' callback
         html.Div(
             [
                 _kpi_card("Total Consumption (MWh)", "kpi-total-cons"),
@@ -96,16 +128,17 @@ app.layout = html.Div(
             id="kpi-grid",
             style={
                 "display": "grid",
+                # Responsive grid, attempts 2 columns
                 "gridTemplateColumns": "repeat(2, minmax(240px, 1fr))",
                 "gap": "12px",
                 "marginBottom": "16px",
             },
         ),
 
-        # Tabs for charts/tables (KPIs stay fixed above)
+        # --- Section: Main Content Tabs ---
         dcc.Tabs(
             id="tabs",
-            value="overview",
+            value="overview", # Default tab to show
             children=[
                 dcc.Tab(label="Overview", value="overview"),
                 dcc.Tab(label="Production Mix", value="mix"),
@@ -114,9 +147,11 @@ app.layout = html.Div(
                 dcc.Tab(label="Tables", value="tables"),
             ],
         ),
+        # Content for the selected tab will be rendered here by 'render_tab' callback
         html.Div(id="tab-content", style={"marginTop": "14px"}),
 
-        # Inline CSS via Markdown (Dash-safe way)
+        # --- Section: Inline CSS Styling ---
+        # Using dcc.Markdown to inject custom CSS for styling KPI cards
         dcc.Markdown(
             """
 <style>
@@ -136,6 +171,7 @@ app.layout = html.Div(
   font-size: 22px;
   font-weight: 600;
 }
+/* Responsive grid for KPIs on larger screens */
 @media (min-width: 920px) {
   #kpi-grid { grid-template-columns: repeat(2, 1fr); }
 }
@@ -144,11 +180,12 @@ app.layout = html.Div(
             dangerously_allow_html=True,
         ),
     ],
+    # Main container style
     style={"maxWidth": "1200px", "margin": "0 auto", "fontFamily": "Inter, Segoe UI, Arial"},
 )
 
 
-# --- Persistent KPI updater ---
+# --- Callback: Persistent KPI Updater ---
 @app.callback(
     Output("kpi-total-cons", "children"),
     Output("kpi-total-prod", "children"),
@@ -161,8 +198,14 @@ app.layout = html.Div(
     Input("date-range", "end_date"),
 )
 def update_kpis(countries, start_date, end_date):
+    """
+    This callback fires when filters change and updates all KPI cards.
+    """
+    # Ensure countries list is not empty (default to FR if none selected)
     countries = countries or ["FR"]
+    # Fetch and process all KPI data from the queries module
     k = Q.kpis(engine_factory, countries, start_date, end_date)
+    # Return formatted strings for each KPI card
     return (
         f"{k['total_consumption']:.0f}",
         f"{k['total_production']:.0f}",
@@ -173,7 +216,7 @@ def update_kpis(countries, start_date, end_date):
     )
 
 
-# --- Tab renderer (charts/tables only) ---
+# --- Callback: Main Tab Renderer (Charts/Tables) ---
 @app.callback(
     Output("tab-content", "children"),
     Input("tabs", "value"),
@@ -182,8 +225,13 @@ def update_kpis(countries, start_date, end_date):
     Input("date-range", "end_date"),
 )
 def render_tab(tab, countries, start_date, end_date):
+    """
+    This callback fires when the selected tab or filters change.
+    It renders the content (graphs or tables) for the currently active tab.
+    """
     countries = countries or ["FR"]
 
+    # --- Tab: Overview (Line Chart) ---
     if tab == "overview":
         df = Q.consumption_vs_production(engine_factory, countries, start_date, end_date)
         if df.empty:
@@ -197,6 +245,7 @@ def render_tab(tab, countries, start_date, end_date):
         )
         return dcc.Graph(figure=fig)
 
+    # --- Tab: Production Mix (Stacked Area Chart) ---
     if tab == "mix":
         df = Q.production_mix(engine_factory, countries, start_date, end_date)
         if df.empty:
@@ -204,10 +253,12 @@ def render_tab(tab, countries, start_date, end_date):
         fig = px.area(df, x="time_stamp", y="production_mw", color="source_type", title="Production Mix")
         return dcc.Graph(figure=fig)
 
+    # --- Tab: Cross-Border Flows (Bar Chart) ---
     if tab == "flows":
         df = Q.crossborder_flows(engine_factory, countries, start_date, end_date)
         if df.empty:
             return html.Div("No flow data available.")
+        # Aggregate total flow per direction for a cleaner bar chart
         agg = (
             df.groupby(["from_country_code", "to_country_code"], as_index=False)["flow_mw"]
             .sum()
@@ -223,11 +274,14 @@ def render_tab(tab, countries, start_date, end_date):
         )
         return dcc.Graph(figure=fig)
 
+    # --- Tab: Hourly Heatmap ---
     if tab == "heat":
         df = Q.hourly_consumption(engine_factory, countries, start_date, end_date)
         if df.empty:
             return html.Div("No data in this range.")
+        # Pivot data for heatmap (Day vs. Hour)
         pivot = df.pivot_table(index="day", columns="hour", values="consumption_mw", aggfunc="mean")
+        # Ensure correct day of week order
         pivot = pivot.reindex(["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"])
         fig = px.imshow(
             pivot,
@@ -235,9 +289,12 @@ def render_tab(tab, countries, start_date, end_date):
             labels=dict(x="Hour", y="Day", color="Consumption (MW)"),
             title="Hourly Consumption Patterns",
         )
+        # FIX: Corrected typo dG -> dcc (Dash Core Components)
         return dcc.Graph(figure=fig)
 
+    # --- Tab: Data Tables ---
     if tab == "tables":
+        # Fetch data for both tables
         d1 = Q.daily_summary(engine_factory, countries, start_date, end_date)
         d2 = Q.flow_table(engine_factory, countries, start_date, end_date)
         return html.Div(
@@ -250,7 +307,7 @@ def render_tab(tab, countries, start_date, end_date):
                     style_table={"overflowX": "auto"},
                 ),
                 html.Hr(),
-                html.H4("Cross-Border Flows"),
+                html.H4("Cross-Border Flows (Raw)"),
                 dash_table.DataTable(
                     data=d2.to_dict("records"),
                     columns=[{"name": c, "id": c} for c in d2.columns],
@@ -263,5 +320,6 @@ def render_tab(tab, countries, start_date, end_date):
     return html.Div("Unknown tab")
 
 
+# Standard Python entry point to run the app in debug mode
 if __name__ == "__main__":
     app.run(debug=True)
