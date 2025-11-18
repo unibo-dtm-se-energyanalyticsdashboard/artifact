@@ -1,10 +1,12 @@
 name: deploy
-permissions:
-  contents: write
-  packages: write
+
+
 on:
   workflow_call:
   workflow_dispatch:
+permissions:
+  contents: write
+  packages: write
 jobs:
   release:
     name: Release
