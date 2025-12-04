@@ -1,0 +1,79 @@
+2025-11-13 13:55:53 | INFO | dash.dash | Dash is running on http://127.0.0.1:8050/
+
+2025-11-13 18:35:24 | INFO | dash.dash | Dash is running on http://127.0.0.1:8050/
+
+2025-11-15 19:29:20 | INFO | dash.dash | Dash is running on http://127.0.0.1:8050/
+
+2025-11-15 19:39:07 | INFO | edas.pipeline | Pipeline start | mode=last_10_days | include_flows=True | requested_countries=['FR', 'DE']
+2025-11-15 19:39:07 | INFO | edas.pipeline | DB engine created successfully
+2025-11-15 19:39:07 | INFO | edas.pipeline | Loaded 9 countries from DB: ['FR', 'DE', 'BE', 'CH', 'ES', 'NL', 'AT', 'CZ', 'PL']
+2025-11-15 19:39:07 | INFO | edas.pipeline | Range resolved | mode=last_10_days :: 2025-11-05 18:00:00+01:00 → 2025-11-15 18:00:00+01:00
+2025-11-15 19:39:07 | INFO | edas.pipeline | Fetching consumption | country=FR | zone=10YFR-RTE------C
+2025-11-15 19:39:07 | INFO | edas.ingestion.entsoe_client | Load consumption FR (10YFR-RTE------C) 2025-11-05 18:00:00+01:00 → 2025-11-15 18:00:00+01:00
+2025-11-15 19:39:14 | INFO | edas.ingestion.upsert | Upserted 960 consumption records.
+2025-11-15 19:39:14 | INFO | edas.pipeline | Upsert consumption | country=FR | rows=960
+2025-11-15 19:39:14 | INFO | edas.pipeline | Fetching production | country=FR | zone=10YFR-RTE------C
+2025-11-15 19:39:14 | INFO | edas.ingestion.entsoe_client | Load generation FR (10YFR-RTE------C) 2025-11-05 18:00:00+01:00 → 2025-11-15 18:00:00+01:00
+2025-11-15 19:39:19 | INFO | edas.ingestion.upsert | Upserted 15273 production records.
+2025-11-15 19:39:19 | INFO | edas.pipeline | Upsert production | country=FR | rows=15273
+2025-11-15 19:39:19 | INFO | edas.pipeline | Fetching consumption | country=DE | zone=10Y1001A1001A83F
+2025-11-15 19:39:19 | INFO | edas.ingestion.entsoe_client | Load consumption DE (10Y1001A1001A83F) 2025-11-05 18:00:00+01:00 → 2025-11-15 18:00:00+01:00
+2025-11-15 19:39:20 | INFO | edas.ingestion.upsert | Upserted 960 consumption records.
+2025-11-15 19:39:20 | INFO | edas.pipeline | Upsert consumption | country=DE | rows=960
+2025-11-15 19:39:20 | INFO | edas.pipeline | Fetching production | country=DE | zone=10Y1001A1001A83F
+2025-11-15 19:39:20 | INFO | edas.ingestion.entsoe_client | Load generation DE (10Y1001A1001A83F) 2025-11-05 18:00:00+01:00 → 2025-11-15 18:00:00+01:00
+2025-11-15 19:39:26 | INFO | edas.ingestion.upsert | Upserted 16320 production records.
+2025-11-15 19:39:26 | INFO | edas.pipeline | Upsert production | country=DE | rows=16320
+2025-11-15 19:39:26 | INFO | edas.pipeline | Fetching flow | FR -> BE | zones: 10YFR-RTE------C -> 10YBE----------2
+2025-11-15 19:39:26 | INFO | edas.ingestion.entsoe_client | Load flow FR(10YFR-RTE------C) -> BE(10YBE----------2) 2025-11-05 18:00:00+01:00 → 2025-11-15 18:00:00+01:00
+2025-11-15 19:39:27 | INFO | edas.ingestion.upsert | Upserted 960 cross-border flow records.
+2025-11-15 19:39:27 | INFO | edas.pipeline | Upsert flow | FR -> BE | rows=960
+2025-11-15 19:39:27 | INFO | edas.pipeline | Fetching flow | FR -> DE | zones: 10YFR-RTE------C -> 10Y1001A1001A83F
+2025-11-15 19:39:27 | INFO | edas.ingestion.entsoe_client | Load flow FR(10YFR-RTE------C) -> DE(10Y1001A1001A83F) 2025-11-05 18:00:00+01:00 → 2025-11-15 18:00:00+01:00
+2025-11-15 19:39:28 | INFO | edas.ingestion.upsert | Upserted 960 cross-border flow records.
+2025-11-15 19:39:28 | INFO | edas.pipeline | Upsert flow | FR -> DE | rows=960
+2025-11-15 19:39:28 | INFO | edas.pipeline | Fetching flow | FR -> ES | zones: 10YFR-RTE------C -> 10YES-REE------0
+2025-11-15 19:39:28 | INFO | edas.ingestion.entsoe_client | Load flow FR(10YFR-RTE------C) -> ES(10YES-REE------0) 2025-11-05 18:00:00+01:00 → 2025-11-15 18:00:00+01:00
+2025-11-15 19:39:30 | INFO | edas.ingestion.upsert | Upserted 960 cross-border flow records.
+2025-11-15 19:39:30 | INFO | edas.pipeline | Upsert flow | FR -> ES | rows=960
+2025-11-15 19:39:30 | INFO | edas.pipeline | Fetching flow | FR -> CH | zones: 10YFR-RTE------C -> 10YCH-SWISSGRIDZ
+2025-11-15 19:39:30 | INFO | edas.ingestion.entsoe_client | Load flow FR(10YFR-RTE------C) -> CH(10YCH-SWISSGRIDZ) 2025-11-05 18:00:00+01:00 → 2025-11-15 18:00:00+01:00
+2025-11-15 19:39:31 | INFO | edas.ingestion.upsert | Upserted 240 cross-border flow records.
+2025-11-15 19:39:31 | INFO | edas.pipeline | Upsert flow | FR -> CH | rows=240
+2025-11-15 19:39:31 | INFO | edas.pipeline | Fetching flow | DE -> NL | zones: 10Y1001A1001A83F -> 10YNL----------L
+2025-11-15 19:39:31 | INFO | edas.ingestion.entsoe_client | Load flow DE(10Y1001A1001A83F) -> NL(10YNL----------L) 2025-11-05 18:00:00+01:00 → 2025-11-15 18:00:00+01:00
+2025-11-15 19:39:32 | INFO | edas.ingestion.upsert | Upserted 960 cross-border flow records.
+2025-11-15 19:39:32 | INFO | edas.pipeline | Upsert flow | DE -> NL | rows=960
+2025-11-15 19:39:32 | INFO | edas.pipeline | Fetching flow | DE -> BE | zones: 10Y1001A1001A83F -> 10YBE----------2
+2025-11-15 19:39:32 | INFO | edas.ingestion.entsoe_client | Load flow DE(10Y1001A1001A83F) -> BE(10YBE----------2) 2025-11-05 18:00:00+01:00 → 2025-11-15 18:00:00+01:00
+2025-11-15 19:39:32 | INFO | edas.ingestion.upsert | Upserted 960 cross-border flow records.
+2025-11-15 19:39:32 | INFO | edas.pipeline | Upsert flow | DE -> BE | rows=960
+2025-11-15 19:39:32 | INFO | edas.pipeline | Fetching flow | DE -> FR | zones: 10Y1001A1001A83F -> 10YFR-RTE------C
+2025-11-15 19:39:32 | INFO | edas.ingestion.entsoe_client | Load flow DE(10Y1001A1001A83F) -> FR(10YFR-RTE------C) 2025-11-05 18:00:00+01:00 → 2025-11-15 18:00:00+01:00
+2025-11-15 19:39:32 | INFO | edas.ingestion.upsert | Upserted 960 cross-border flow records.
+2025-11-15 19:39:32 | INFO | edas.pipeline | Upsert flow | DE -> FR | rows=960
+2025-11-15 19:39:32 | INFO | edas.pipeline | Fetching flow | DE -> CH | zones: 10Y1001A1001A83F -> 10YCH-SWISSGRIDZ
+2025-11-15 19:39:32 | INFO | edas.ingestion.entsoe_client | Load flow DE(10Y1001A1001A83F) -> CH(10YCH-SWISSGRIDZ) 2025-11-05 18:00:00+01:00 → 2025-11-15 18:00:00+01:00
+2025-11-15 19:39:33 | INFO | edas.ingestion.upsert | Upserted 960 cross-border flow records.
+2025-11-15 19:39:33 | INFO | edas.pipeline | Upsert flow | DE -> CH | rows=960
+2025-11-15 19:39:33 | INFO | edas.pipeline | Fetching flow | DE -> AT | zones: 10Y1001A1001A83F -> 10YAT-APG------L
+2025-11-15 19:39:33 | INFO | edas.ingestion.entsoe_client | Load flow DE(10Y1001A1001A83F) -> AT(10YAT-APG------L) 2025-11-05 18:00:00+01:00 → 2025-11-15 18:00:00+01:00
+2025-11-15 19:39:39 | INFO | edas.ingestion.upsert | Upserted 960 cross-border flow records.
+2025-11-15 19:39:39 | INFO | edas.pipeline | Upsert flow | DE -> AT | rows=960
+2025-11-15 19:39:39 | INFO | edas.pipeline | Fetching flow | DE -> CZ | zones: 10Y1001A1001A83F -> 10YCZ-CEPS-----N
+2025-11-15 19:39:39 | INFO | edas.ingestion.entsoe_client | Load flow DE(10Y1001A1001A83F) -> CZ(10YCZ-CEPS-----N) 2025-11-05 18:00:00+01:00 → 2025-11-15 18:00:00+01:00
+2025-11-15 19:39:41 | INFO | edas.ingestion.upsert | Upserted 959 cross-border flow records.
+2025-11-15 19:39:41 | INFO | edas.pipeline | Upsert flow | DE -> CZ | rows=959
+2025-11-15 19:39:41 | INFO | edas.pipeline | Fetching flow | DE -> PL | zones: 10Y1001A1001A83F -> 10YPL-AREA-----S
+2025-11-15 19:39:41 | INFO | edas.ingestion.entsoe_client | Load flow DE(10Y1001A1001A83F) -> PL(10YPL-AREA-----S) 2025-11-05 18:00:00+01:00 → 2025-11-15 18:00:00+01:00
+2025-11-15 19:39:42 | INFO | edas.ingestion.upsert | Upserted 960 cross-border flow records.
+2025-11-15 19:39:42 | INFO | edas.pipeline | Upsert flow | DE -> PL | rows=960
+2025-11-15 19:39:42 | INFO | edas.pipeline | Pipeline finished successfully in 34.90s
+2025-11-15 19:57:37 | INFO | edas.pipeline | Pipeline start | mode=last_10_days | include_flows=False | requested_countries=['FR']
+2025-11-15 19:57:37 | INFO | edas.pipeline | DB engine created successfully
+2025-11-15 19:57:37 | INFO | edas.pipeline | Range resolved | mode=last_10_days :: 2025-11-05 18:00:00+01:00 → 2025-11-15 18:00:00+01:00
+2025-11-15 19:57:37 | INFO | edas.pipeline | Fetching consumption | country=FR | zone=10YFR-RTE------C
+2025-11-15 19:57:37 | INFO | edas.pipeline | Upsert consumption | country=FR | rows=4
+2025-11-15 19:57:37 | INFO | edas.pipeline | Fetching production | country=FR | zone=10YFR-RTE------C
+2025-11-15 19:57:37 | INFO | edas.pipeline | Upsert production | country=FR | rows=5
+2025-11-15 19:57:37 | INFO | edas.pipeline | Pipeline finished successfully in 0.01s
