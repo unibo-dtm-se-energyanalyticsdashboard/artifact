@@ -1,3 +1,74 @@
 
-# Application logs
-/logs/
+##############
+# PYTHON CACHE
+##############
+__pycache__/          # Python bytecode cache
+*.pyc                # Compiled Python files
+*.pyo
+*$py.class
+
+##############
+# ENVIRONMENTS
+##############
+.env                  # Environment variables (sensitive keys)
+.venv/                # Poetry virtual environment
+venv/
+env/
+
+#######################
+# BUILD / PACKAGING
+#######################
+build/                # Build artifacts
+dist/                 # Distribution folder
+*.egg-info/           # Python package metadata created by Poetry
+*.egg
+
+#######################
+# POETRY
+#######################
+poetry.lock           # Auto-generated; not needed in your project release (optional)
+
+#######################
+# TESTS & COVERAGE
+#######################
+htmlcov/              # Coverage HTML reports
+.coverage             # Coverage database
+.coverage.*           # Coverage variations
+.pytest_cache/        # Pytest cache
+
+#######################
+# LOGS
+#######################
+logs/                 # Your application logs
+*.log                 # Any additional logs
+
+#######################
+# IDE / OS FILES
+#######################
+.vscode/              # VSCode settings
+.idea/                # PyCharm / IntelliJ settings
+.DS_Store             # macOS Finder metadata
+Thumbs.db             # Windows Explorer metadata
+
+#######################
+# NODE MODULES (Dash)
+#######################
+node_modules/         # Dash may bundle JS dependencies
+
+#######################
+# TEMP FILES
+#######################
+tmp/                  # Temporary working files
+*.bak                 # Backup files
+*~                    # Editor backup files
+
+#######################
+# JUPYTER
+#######################
+.ipynb_checkpoints/   # Jupyter Notebook temporary state
+
+#######################
+# PROJECT-SPECIFIC
+#######################
+demo/                 # Your demo folder (if generated)
+*.data                # Any large data files generated during ingestion
