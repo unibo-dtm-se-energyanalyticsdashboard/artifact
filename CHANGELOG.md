@@ -1,5 +1,16 @@
 # Changelog
 
+## [1.0.0] - 2025-11-18
+
+### Released
+* **First Official Release**: Marked the project as stable and ready for production (v1.0.0).
+
+### Changed
+* **Code Finalization**: Completed comprehensive code review and cleanup for the final version.
+* **Documentation**: Added extensive in-code comments and docstrings to improve code readability and maintainability.
+* **Project Stabilization**: Finalized all project structures and workflows for the official launch.
+
+
 ## [0.2.0] - 2025-11-11
 
 ### Added
