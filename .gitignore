@@ -143,5 +143,5 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-#Logs
+# Logs
 logs/
