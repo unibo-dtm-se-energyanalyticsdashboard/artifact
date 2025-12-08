@@ -120,13 +120,13 @@ Run data ingestion via the CLI tool:
 **Last 10 days (default):**
 
 ```bash
-poetry run python artifact/scripts/ingest.py --countries FR DE
+poetry run python scripts/ingest.py --countries FR DE
 ```
 
 **Full year 2025:**
 
 ```bash
-poetry run python artifact/scripts/ingest.py --mode full_2025 --countries FR DE
+poetry run python scripts/ingest.py --mode full_2025 --countries FR DE
 ```
 
 ---
