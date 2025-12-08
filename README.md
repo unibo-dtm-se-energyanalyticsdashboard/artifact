@@ -108,7 +108,7 @@ ENTSOE_API_KEY=your_entsoe_token
 Initialize schema:
 
 ```bash
-bash artifact/scripts/db_init.sh
+bash scripts/db_init.sh
 ```
 
 ---
