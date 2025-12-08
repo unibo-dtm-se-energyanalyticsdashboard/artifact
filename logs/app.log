@@ -77,3 +77,46 @@
 2025-11-15 19:57:37 | INFO | edas.pipeline | Fetching production | country=FR | zone=10YFR-RTE------C
 2025-11-15 19:57:37 | INFO | edas.pipeline | Upsert production | country=FR | rows=5
 2025-11-15 19:57:37 | INFO | edas.pipeline | Pipeline finished successfully in 0.01s
+2025-12-06 16:33:20 | INFO | edas.pipeline | Pipeline start | mode=full_2025 | include_flows=True | requested_countries=['FR', 'DE']
+2025-12-06 16:33:20 | INFO | edas.pipeline | DB engine created successfully
+2025-12-06 16:33:20 | INFO | edas.pipeline | Loaded 9 countries from DB: ['FR', 'DE', 'BE', 'CH', 'ES', 'NL', 'AT', 'CZ', 'PL']
+2025-12-06 16:33:20 | INFO | edas.pipeline | Range resolved | mode=full_2025 :: 2025-01-01 00:00:00+01:00 → 2025-12-31 23:00:00+01:00
+2025-12-06 16:33:20 | INFO | edas.pipeline | Fetching consumption | country=FR | zone=10YFR-RTE------C
+2025-12-06 16:33:20 | INFO | edas.ingestion.entsoe_client | Load consumption FR (10YFR-RTE------C) 2025-01-01 00:00:00+01:00 → 2025-12-31 23:00:00+01:00
+2025-12-06 16:33:38 | INFO | edas.ingestion.upsert | Upserted 32604 consumption records.
+2025-12-06 16:33:38 | INFO | edas.pipeline | Upsert consumption | country=FR | rows=32604
+2025-12-06 16:33:38 | INFO | edas.pipeline | Fetching production | country=FR | zone=10YFR-RTE------C
+2025-12-06 16:33:38 | INFO | edas.ingestion.entsoe_client | Load generation FR (10YFR-RTE------C) 2025-01-01 00:00:00+01:00 → 2025-12-31 23:00:00+01:00
+2025-12-06 16:35:11 | ERROR | edas.pipeline | Pipeline failed after 111.45s: 400 Client Error:  for url: https://web-api.tp.entsoe.eu/api?documentType=A75&processType=A16&in_Domain=10YFR-RTE------C&securityToken=ad80a684-56b8-4229-9138-4099fbef344d&periodStart=202412312300&periodEnd=202512312200
+Traceback (most recent call last):
+  File "C:\Users\romin\OneDrive\Documents\Energy Analytics\artifact\src\edas\pipeline.py", line 135, in run_pipeline
+    prod = fetch_production(cc, zone, start, end)
+  File "C:\Users\romin\OneDrive\Documents\Energy Analytics\artifact\src\edas\ingestion\entsoe_client.py", line 117, in fetch_production
+    df = client.query_generation(zone_key, start=start, end=end, psr_type=None)
+  File "C:\Users\romin\OneDrive\Documents\Energy Analytics\artifact\.venv\lib\site-packages\entsoe\decorators.py", line 129, in year_wrapper
+    frame = func(*args, start=_start, end=_end, **kwargs)
+  File "C:\Users\romin\OneDrive\Documents\Energy Analytics\artifact\.venv\lib\site-packages\entsoe\entsoe.py", line 1587, in query_generation
+    text = super(EntsoePandasClient, self).query_generation(
+  File "C:\Users\romin\OneDrive\Documents\Energy Analytics\artifact\.venv\lib\site-packages\entsoe\entsoe.py", line 414, in query_generation
+    response = self._base_request(params=params, start=start, end=end)
+  File "C:\Users\romin\OneDrive\Documents\Energy Analytics\artifact\.venv\lib\site-packages\entsoe\decorators.py", line 24, in retry_wrapper
+    result = func(*args, **kwargs)
+  File "C:\Users\romin\OneDrive\Documents\Energy Analytics\artifact\.venv\lib\site-packages\entsoe\entsoe.py", line 135, in _base_request
+    raise e
+  File "C:\Users\romin\OneDrive\Documents\Energy Analytics\artifact\.venv\lib\site-packages\entsoe\entsoe.py", line 109, in _base_request
+    response.raise_for_status()
+  File "C:\Users\romin\OneDrive\Documents\Energy Analytics\artifact\.venv\lib\site-packages\requests\models.py", line 1026, in raise_for_status
+    raise HTTPError(http_error_msg, response=self)
+requests.exceptions.HTTPError: 400 Client Error:  for url: https://web-api.tp.entsoe.eu/api?documentType=A75&processType=A16&in_Domain=10YFR-RTE------C&securityToken=ad80a684-56b8-4229-9138-4099fbef344d&periodStart=202412312300&periodEnd=202512312200
+2025-12-06 16:35:38 | INFO | edas.pipeline | Pipeline start | mode=last_10_days | include_flows=False | requested_countries=['FR']
+2025-12-06 16:35:38 | INFO | edas.pipeline | DB engine created successfully
+2025-12-06 16:35:38 | INFO | edas.pipeline | Range resolved | mode=last_10_days :: 2025-11-26 15:00:00+01:00 → 2025-12-06 15:00:00+01:00
+2025-12-06 16:35:38 | INFO | edas.pipeline | Fetching consumption | country=FR | zone=10YFR-RTE------C
+2025-12-06 16:35:38 | INFO | edas.pipeline | Upsert consumption | country=FR | rows=4
+2025-12-06 16:35:38 | INFO | edas.pipeline | Fetching production | country=FR | zone=10YFR-RTE------C
+2025-12-06 16:35:38 | INFO | edas.pipeline | Upsert production | country=FR | rows=5
+2025-12-06 16:35:38 | INFO | edas.pipeline | Pipeline finished successfully in 0.01s
+2025-12-06 16:36:01 | INFO | dash.dash | Dash is running on http://127.0.0.1:8050/
+
+2025-12-08 14:04:14 | INFO | dash.dash | Dash is running on http://127.0.0.1:8050/
+
