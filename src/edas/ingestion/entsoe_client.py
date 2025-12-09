@@ -8,8 +8,7 @@ from entsoe import EntsoePandasClient
 # Import project-specific configuration constants.
 # ENTSOE_API_KEY is sensitive data handled via config.
 from edas.config import ENTSOE_API_KEY, TZ_EUROPE
-# This is a duplicate import, but harmless. Kept as per user's request (no changes).
-from entsoe import EntsoePandasClient
+
 
 # Initialize logger for this module (good practice for debugging/monitoring in CI/CD).
 log = logging.getLogger(__name__)
